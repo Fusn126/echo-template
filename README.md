@@ -11,7 +11,6 @@
 │   ├── models/      # 数据模型
 │   ├── routes/      # 路由配置
 │   │   ├── v1/      # v1 版本路由
-│   │   └── v2/      # v2 版本路由
 │   └── services/    # 业务逻辑层
 ├── config/          # 配置文件
 ├── database/        # 数据库连接
@@ -23,7 +22,7 @@
 ## 功能特性
 
 - ✅ MVC 架构模式（集中在 app 目录）
-- ✅ API 版本控制（v1、v2）
+- ✅ API 版本控制
 - ✅ 前后端分离（CORS 支持）
 - ✅ GORM ORM 集成
 - ✅ 支持 PostgreSQL、MySQL、SQLite
@@ -80,14 +79,6 @@ go run server.go
 - `PUT /api/v1/users/:id` - 更新用户
 - `DELETE /api/v1/users/:id` - 删除用户
 
-### 用户管理 API (v2)
-
-- `GET /api/v2/users` - 获取用户列表
-- `GET /api/v2/users/:id` - 获取单个用户
-- `POST /api/v2/users` - 创建用户
-- `PUT /api/v2/users/:id` - 更新用户
-- `DELETE /api/v2/users/:id` - 删除用户
-
 ### 健康检查
 
 - `GET /health` - 健康检查接口
@@ -119,12 +110,11 @@ go run server.go
 
 1. 在 `app/controllers/` 目录创建控制器
 2. 在 `app/services/` 目录创建对应的服务
-3. 在 `app/routes/v1/routes.go` 或 `app/routes/v2/routes.go` 中注册路由
+3. 在 `app/routes/v1/routes.go` 中注册路由
 
 ### API 版本管理
 
 - v1 版本路由：`app/routes/v1/routes.go`
-- v2 版本路由：`app/routes/v2/routes.go`
 - 主路由文件：`app/routes/routes.go` 负责注册所有版本的路由
 
 每个版本可以有不同的实现，便于 API 的演进和向后兼容。
