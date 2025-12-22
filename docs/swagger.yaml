@@ -1,0 +1,239 @@
+basePath: /api
+definitions:
+  models.ErrorResponse:
+    description: 错误响应
+    properties:
+      code:
+        example: 400
+        type: integer
+      msg:
+        example: 操作失败
+        type: string
+    type: object
+  models.SuccessResponse:
+    description: 成功响应
+    properties:
+      code:
+        example: 200
+        type: integer
+      msg:
+        example: 操作成功
+        type: string
+    type: object
+  models.User:
+    description: 用户信息
+    properties:
+      created_at:
+        description: 创建时间
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      email:
+        description: 邮箱
+        example: john@example.com
+        type: string
+      id:
+        description: 用户ID
+        example: 1
+        type: integer
+      name:
+        description: 姓名
+        example: John Doe
+        type: string
+      updated_at:
+        description: 更新时间
+        example: "2024-01-01T00:00:00Z"
+        type: string
+      username:
+        description: 用户名
+        example: john_doe
+        type: string
+    required:
+    - email
+    - username
+    type: object
+  models.UserListResponse:
+    description: 用户列表响应
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+      msg:
+        example: 获取用户列表成功
+        type: string
+    type: object
+  models.UserResponse:
+    description: 用户响应
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        $ref: '#/definitions/models.User'
+      msg:
+        example: 获取用户信息成功
+        type: string
+    type: object
+host: localhost:1323
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: 基于 Echo 框架的 MVC 架构 API 文档
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Echo Template API
+  version: "1.0"
+paths:
+  /v1/users:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有用户信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功返回用户列表
+          schema:
+            $ref: '#/definitions/models.UserListResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: 获取用户列表
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: 创建新用户
+      parameters:
+      - description: 用户信息
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 成功创建用户
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: 创建用户
+      tags:
+      - users
+  /v1/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据ID删除用户
+      parameters:
+      - description: 用户ID
+        example: 1
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功删除用户
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: 删除用户
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取用户详细信息
+      parameters:
+      - description: 用户ID
+        example: 1
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功返回用户信息
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: 获取单个用户
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: 更新用户信息
+      parameters:
+      - description: 用户ID
+        example: 1
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 用户信息
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功更新用户
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: 更新用户
+      tags:
+      - users
+schemes:
+- http
+- https
+swagger: "2.0"
