@@ -1,25 +1,5 @@
 basePath: /api
 definitions:
-  models.ErrorResponse:
-    description: 错误响应
-    properties:
-      code:
-        example: 400
-        type: integer
-      msg:
-        example: 操作失败
-        type: string
-    type: object
-  models.SuccessResponse:
-    description: 成功响应
-    properties:
-      code:
-        example: 200
-        type: integer
-      msg:
-        example: 操作成功
-        type: string
-    type: object
   models.User:
     description: 用户信息
     properties:
@@ -51,30 +31,35 @@ definitions:
     - email
     - username
     type: object
-  models.UserListResponse:
-    description: 用户列表响应
+  utils.ErrorResponse:
+    description: 错误响应
     properties:
       code:
-        example: 200
+        example: 400
         type: integer
-      data:
-        items:
-          $ref: '#/definitions/models.User'
-        type: array
       msg:
-        example: 获取用户列表成功
+        example: 操作失败
         type: string
     type: object
-  models.UserResponse:
-    description: 用户响应
+  utils.Response:
+    description: 通用API响应
     properties:
       code:
         example: 200
         type: integer
-      data:
-        $ref: '#/definitions/models.User'
+      data: {}
       msg:
-        example: 获取用户信息成功
+        example: success
+        type: string
+    type: object
+  utils.SuccessResponse:
+    description: 成功响应
+    properties:
+      code:
+        example: 200
+        type: integer
+      msg:
+        example: 操作成功
         type: string
     type: object
 host: localhost:1323
@@ -102,11 +87,18 @@ paths:
         "200":
           description: 成功返回用户列表
           schema:
-            $ref: '#/definitions/models.UserListResponse'
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.User'
+                  type: array
+              type: object
         "500":
           description: 服务器错误
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: 获取用户列表
       tags:
       - users
@@ -127,15 +119,20 @@ paths:
         "201":
           description: 成功创建用户
           schema:
-            $ref: '#/definitions/models.UserResponse'
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.User'
+              type: object
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: 服务器错误
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: 创建用户
       tags:
       - users
@@ -157,15 +154,15 @@ paths:
         "200":
           description: 成功删除用户
           schema:
-            $ref: '#/definitions/models.SuccessResponse'
+            $ref: '#/definitions/utils.SuccessResponse'
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: 服务器错误
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: 删除用户
       tags:
       - users
@@ -186,15 +183,20 @@ paths:
         "200":
           description: 成功返回用户信息
           schema:
-            $ref: '#/definitions/models.UserResponse'
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.User'
+              type: object
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "404":
           description: 用户不存在
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: 获取单个用户
       tags:
       - users
@@ -221,15 +223,22 @@ paths:
         "200":
           description: 成功更新用户
           schema:
-            $ref: '#/definitions/models.UserResponse'
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.User'
+                  type: array
+              type: object
         "400":
           description: 请求参数错误
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
         "500":
           description: 服务器错误
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/utils.ErrorResponse'
       summary: 更新用户
       tags:
       - users

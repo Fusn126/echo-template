@@ -1,35 +1,41 @@
 # Echo MVC 脚手架
 
-基于 Echo 框架的 MVC 架构脚手架，支持前后端分离，集成 GORM ORM。
+基于 Echo 框架的 MVC 架构脚手架，支持前后端分离，集成 GORM ORM 和 Swagger 文档。
 
 ## 项目结构
 
 ```
 .
-├── app/             # MVC 应用核心代码
-│   ├── controllers/ # 控制器层
-│   ├── models/      # 数据模型
-│   ├── routes/      # 路由配置
-│   │   ├── v1/      # v1 版本路由
-│   └── services/    # 业务逻辑层
-├── config/          # 配置文件
-├── database/        # 数据库连接
-├── middleware/      # 中间件
-├── server.go        # 主入口文件
-└── .env.example     # 环境变量示例
+├── app/                    # MVC 应用核心代码
+│   ├── controllers/       # 控制器层
+│   ├── models/           # 数据模型
+│   ├── routes/           # 路由配置
+│   │   └── v1/           # v1 版本路由
+│   └── services/         # 业务逻辑层（接口化设计）
+├── config/               # 配置文件
+├── database/            # 数据库连接
+├── docs/                # Swagger 文档
+├── middleware/          # 中间件
+├── utils/               # 工具包
+│   ├── errors.go        # 统一错误处理
+│   ├── response.go      # 统一响应处理
+│   └── validator.go     # 参数验证
+├── server.go           # 主入口文件
+└── .env.example        # 环境变量示例
 ```
 
 ## 功能特性
 
-- ✅ MVC 架构模式（集中在 app 目录）
-- ✅ API 版本控制
-- ✅ 前后端分离（CORS 支持）
-- ✅ GORM ORM 集成
-- ✅ 支持 PostgreSQL、MySQL、SQLite
-- ✅ 自动数据库迁移
-- ✅ 中间件支持（日志、恢复、CORS）
-- ✅ RESTful API 示例
-- ✅ Swagger API 文档自动生成
+- ✅ **MVC 架构模式** - 清晰的代码分层，集中在 `app` 目录
+- ✅ **API 版本控制** - 支持多版本 API（v1, v2...）
+- ✅ **前后端分离** - CORS 中间件支持
+- ✅ **GORM ORM** - 支持 PostgreSQL、MySQL、SQLite
+- ✅ **自动数据库迁移** - 启动时自动创建表结构
+- ✅ **统一响应格式** - 通用响应工具，适用于所有业务
+- ✅ **统一错误处理** - 自定义错误类型，集中处理
+- ✅ **参数验证** - 统一的参数解析和验证工具
+- ✅ **服务层接口化** - 便于测试和扩展
+- ✅ **Swagger 文档** - 自动生成 API 文档
 
 ## 快速开始
 
@@ -47,15 +53,17 @@ go mod download
 cp .env.example .env
 ```
 
-### 3. 生成 Swagger 文档（首次运行或修改 API 后）
+编辑 `.env` 文件，配置数据库连接等信息。
+
+### 3. 生成 Swagger 文档
+
+首次运行或修改 API 后需要生成文档：
 
 ```bash
+# 方式1：使用 swag 命令（需要先安装）
 swag init -g server.go -o docs --parseDependency --parseInternal
-```
 
-或者使用 go run：
-
-```bash
+# 方式2：使用 go run（推荐，无需安装）
 go run github.com/swaggo/swag/cmd/swag@latest init -g server.go -o docs --parseDependency --parseInternal
 ```
 
@@ -79,53 +87,139 @@ go run server.go
 - `PUT /api/v1/users/:id` - 更新用户
 - `DELETE /api/v1/users/:id` - 删除用户
 
-### 健康检查
+### 其他接口
 
-- `GET /health` - 健康检查接口
-
-### Swagger API 文档
-
+- `GET /health` - 健康检查
 - `GET /swagger/index.html` - Swagger UI 文档界面
 
-启动服务器后，访问 `http://localhost:1323/swagger/index.html` 查看完整的 API 文档。
+## 响应格式
 
-## 数据库支持
+项目使用统一的响应格式：
 
-项目支持多种数据库：
+**成功响应（有数据）：**
+```json
+{
+  "code": 200,
+  "data": {...},
+  "msg": "操作成功"
+}
+```
 
-- PostgreSQL（默认）
-- MySQL
-- SQLite
+**成功响应（无数据）：**
+```json
+{
+  "code": 200,
+  "msg": "操作成功"
+}
+```
 
-通过 `DB_TYPE` 环境变量切换数据库类型。
+**错误响应：**
+```json
+{
+  "code": 400,
+  "msg": "错误信息"
+}
+```
 
 ## 开发指南
 
 ### 添加新的模型
 
 1. 在 `app/models/` 目录创建模型文件
-2. 在 `server.go` 的 `AutoMigrate` 中添加模型
+2. 在 `server.go` 的 `AutoMigrate` 中添加模型：
 
-### 添加新的控制器
+```go
+db.AutoMigrate(&models.User{}, &models.NewModel{})
+```
 
-1. 在 `app/controllers/` 目录创建控制器
-2. 在 `app/services/` 目录创建对应的服务
-3. 在 `app/routes/v1/routes.go` 中注册路由
+### 添加新的控制器和服务
 
-### API 版本管理
+1. **创建服务接口**（`app/services/interfaces.go`）：
+```go
+type ProductServiceInterface interface {
+    GetAllProducts() ([]models.Product, error)
+    GetProductByID(id uint) (*models.Product, error)
+}
+```
 
-- v1 版本路由：`app/routes/v1/routes.go`
-- 主路由文件：`app/routes/routes.go` 负责注册所有版本的路由
+2. **实现服务**（`app/services/product_service.go`）：
+```go
+type ProductService struct {
+    db *gorm.DB
+}
 
-每个版本可以有不同的实现，便于 API 的演进和向后兼容。
+func NewProductService() *ProductService {
+    return &ProductService{db: database.GetDB()}
+}
+
+func (ps *ProductService) GetAllProducts() ([]models.Product, error) {
+    // 实现逻辑
+}
+```
+
+3. **创建控制器**（`app/controllers/product_controller.go`）：
+```go
+type ProductController struct {
+    productService services.ProductServiceInterface
+}
+
+func (pc *ProductController) GetProducts(c echo.Context) error {
+    products, err := pc.productService.GetAllProducts()
+    if err != nil {
+        return utils.HandleError(c, err)
+    }
+    return utils.Success(c, products, "获取产品列表成功")
+}
+```
+
+4. **注册路由**（`app/routes/v1/routes.go`）：
+```go
+productController := controllers.NewProductController()
+v1.GET("/products", productController.GetProducts)
+```
+
+### 使用工具函数
+
+**统一响应：**
+```go
+// 成功响应（有数据）
+return utils.Success(c, data, "操作成功")
+
+// 创建成功
+return utils.SuccessCreated(c, data, "创建成功")
+
+// 删除成功（无数据）
+return utils.SuccessNoContent(c, "删除成功")
+```
+
+**统一错误处理：**
+```go
+// 服务层返回错误
+return utils.ErrNotFound("资源不存在")
+return utils.ErrBadRequest("参数错误")
+return utils.ErrInternal("操作失败", err)
+
+// 控制器处理错误
+if err != nil {
+    return utils.HandleError(c, err)
+}
+```
+
+**参数验证：**
+```go
+// 解析路径参数
+id, err := utils.ParseUintParam(c, "id")
+
+// 绑定并验证请求体
+var user models.User
+if err := utils.BindAndValidate(c, &user); err != nil {
+    return utils.HandleError(c, err)
+}
+```
 
 ### Swagger 文档
 
-项目集成了 Swagger，可以自动生成 API 文档。
-
 **添加 Swagger 注释：**
-
-在控制器方法上添加注释：
 
 ```go
 // GetUsers 获取用户列表
@@ -134,7 +228,8 @@ go run server.go
 // @Tags         users
 // @Accept       json
 // @Produce      json
-// @Success      200  {object}  map[string]interface{}
+// @Success      200  {object}  utils.Response{data=[]models.User}  "成功返回用户列表"
+// @Failure      500  {object}  utils.ErrorResponse  "服务器错误"
 // @Router       /v1/users [get]
 func (uc *UserController) GetUsers(c echo.Context) error {
     // ...
@@ -143,20 +238,44 @@ func (uc *UserController) GetUsers(c echo.Context) error {
 
 **生成文档：**
 
-修改 API 后，需要重新生成 Swagger 文档：
+修改 API 后，重新生成 Swagger 文档：
 
 ```bash
-swag init -g server.go -o docs --parseDependency --parseInternal
+go run github.com/swaggo/swag/cmd/swag@latest init -g server.go -o docs --parseDependency --parseInternal
 ```
 
-**查看文档：**
+## 数据库支持
 
-启动服务器后访问：`http://localhost:1323/swagger/index.html`
+项目支持多种数据库，通过 `DB_TYPE` 环境变量切换：
+
+- `postgres` - PostgreSQL（默认）
+- `mysql` - MySQL
+- `sqlite` - SQLite
+
+## 架构设计
+
+### 分层架构
+
+- **Controller 层** - 处理 HTTP 请求，调用 Service
+- **Service 层** - 业务逻辑处理，接口化设计
+- **Model 层** - 数据模型定义
+- **Utils 层** - 通用工具函数（响应、错误、验证）
+
+### 设计模式
+
+- **接口化服务** - Service 层使用接口，便于测试和扩展
+- **统一响应** - 所有 API 使用统一的响应格式
+- **统一错误处理** - 自定义错误类型，集中处理
+- **工具函数** - 减少重复代码，提高可维护性
 
 ## 依赖
 
-- Echo v4 - Web 框架
-- GORM - ORM 框架
-- godotenv - 环境变量管理
-- Swagger/OpenAPI - API 文档生成
+- **Echo v4** - Web 框架
+- **GORM** - ORM 框架
+- **godotenv** - 环境变量管理
+- **swaggo/swag** - Swagger 文档生成
+- **validator** - 参数验证
 
+## License
+
+Apache 2.0

@@ -41,13 +41,28 @@ const docTemplate = `{
                     "200": {
                         "description": "成功返回用户列表",
                         "schema": {
-                            "$ref": "#/definitions/models.UserListResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.User"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
                         "description": "服务器错误",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -79,19 +94,31 @@ const docTemplate = `{
                     "201": {
                         "description": "成功创建用户",
                         "schema": {
-                            "$ref": "#/definitions/models.UserResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.User"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "服务器错误",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -124,19 +151,31 @@ const docTemplate = `{
                     "200": {
                         "description": "成功返回用户信息",
                         "schema": {
-                            "$ref": "#/definitions/models.UserResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.User"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "用户不存在",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -176,19 +215,34 @@ const docTemplate = `{
                     "200": {
                         "description": "成功更新用户",
                         "schema": {
-                            "$ref": "#/definitions/models.UserResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.User"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "服务器错误",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -219,19 +273,19 @@ const docTemplate = `{
                     "200": {
                         "description": "成功删除用户",
                         "schema": {
-                            "$ref": "#/definitions/models.SuccessResponse"
+                            "$ref": "#/definitions/utils.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "请求参数错误",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "服务器错误",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/utils.ErrorResponse"
                         }
                     }
                 }
@@ -239,34 +293,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.ErrorResponse": {
-            "description": "错误响应",
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 400
-                },
-                "msg": {
-                    "type": "string",
-                    "example": "操作失败"
-                }
-            }
-        },
-        "models.SuccessResponse": {
-            "description": "成功响应",
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 200
-                },
-                "msg": {
-                    "type": "string",
-                    "example": "操作成功"
-                }
-            }
-        },
         "models.User": {
             "description": "用户信息",
             "type": "object",
@@ -307,40 +333,46 @@ const docTemplate = `{
                 }
             }
         },
-        "models.UserListResponse": {
-            "description": "用户列表响应",
+        "utils.ErrorResponse": {
+            "description": "错误响应",
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer",
-                    "example": 200
-                },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.User"
-                    }
+                    "example": 400
                 },
                 "msg": {
                     "type": "string",
-                    "example": "获取用户列表成功"
+                    "example": "操作失败"
                 }
             }
         },
-        "models.UserResponse": {
-            "description": "用户响应",
+        "utils.Response": {
+            "description": "通用API响应",
             "type": "object",
             "properties": {
                 "code": {
                     "type": "integer",
                     "example": 200
                 },
-                "data": {
-                    "$ref": "#/definitions/models.User"
+                "data": {},
+                "msg": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "utils.SuccessResponse": {
+            "description": "成功响应",
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
                 },
                 "msg": {
                     "type": "string",
-                    "example": "获取用户信息成功"
+                    "example": "操作成功"
                 }
             }
         }
